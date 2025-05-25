@@ -250,6 +250,9 @@
         <div class="header">
             <h1>Bihar D.El.Ed Entrance Examination</h1>
             <p>Online Test Portal - Sample Test</p>
+            <!-- PASTE THIS after <p>Online Test Portal - Sample Test</p> -->
+<h3 style="color: #2c3e50; margin-top: 15px; font-size: 1.4em;">By Symbiotic Institute</h3>
+<p style="color: #7f8c8d; font-size: 1em; margin-top: 5px;">(A unit of SymbiotIC Edusolutions Private Limited)</p>
         </div>
 
         <!-- Welcome Screen -->
@@ -265,6 +268,18 @@
                     <li>आप आगे-पीछे जा सकते हैं / You can navigate forward and backward</li>
                 </ul>
             </div>
+<!-- PASTE THIS after the welcomeScreen div ends -->
+<div id="rollNumberScreen" class="welcome-screen" style="display: none;">
+    <h2>Roll Number Entry</h2>
+    <div style="margin: 30px 0;">
+        <label for="rollNumber" style="display: block; margin-bottom: 10px; font-size: 1.2em; color: #2c3e50;">Enter your Roll Number:</label>
+        <input type="text" id="rollNumber" placeholder="e.g., 2024DE12345" 
+               style="padding: 15px; font-size: 1.2em; border: 2px solid #3498db; border-radius: 10px; width: 300px; text-align: center;">
+        <div id="rollError" style="color: red; margin-top: 10px; display: none;">Please enter a valid roll number</div>
+    </div>
+    <button class="start-btn" onclick="validateAndStartTest()">Continue to Test</button>
+</div>
+            
             <button class="start-btn" onclick="startTest()">परीक्षा शुरू करें / Start Test</button>
         </div>
 
@@ -282,7 +297,16 @@
                     Sample Questions
                 </div>
             </div>
-
+<!-- PASTE THIS after the question-nav div -->
+<div class="progress-container" style="background: #f8f9fa; border-radius: 10px; padding: 15px; margin-bottom: 20px;">
+    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+        <span>Progress: <span id="progressText">0/20</span></span>
+        <span>Answered: <span id="answeredCount">0</span></span>
+    </div>
+    <div style="background: #e9ecef; height: 10px; border-radius: 5px; overflow: hidden;">
+        <div id="progressBar" style="background: linear-gradient(45deg, #4caf50, #45a049); height: 100%; width: 0%; transition: width 0.3s ease;"></div>
+    </div>
+</div>
             <div class="question-card">
                 <div class="question-text" id="questionText">Loading...</div>
                 <div class="options-container" id="optionsContainer"></div>
@@ -443,13 +467,46 @@
         let timeLeft = 30 * 60; // 30 minutes in seconds
         let timerInterval;
 
-        function startTest() {
-            document.getElementById('welcomeScreen').style.display = 'none';
-            document.getElementById('testContainer').style.display = 'block';
-            
-            loadQuestion();
-            startTimer();
-        }
+        // REPLACE the existing startTest() function with this:
+function startTest() {
+    document.getElementById('welcomeScreen').style.display = 'none';
+    document.getElementById('rollNumberScreen').style.display = 'block';
+}
+
+// ADD these new functions:
+function validateAndStartTest() {
+    const rollNumber = document.getElementById('rollNumber').value.trim();
+    if (rollNumber.length < 5) {
+        document.getElementById('rollError').style.display = 'block';
+        return;
+    }
+    
+    // Store roll number
+    window.studentRollNumber = rollNumber;
+    
+    document.getElementById('rollNumberScreen').style.display = 'none';
+    document.getElementById('testContainer').style.display = 'block';
+    
+    // Add floating timer
+    document.body.insertAdjacentHTML('afterbegin', 
+        '<div id="floatingTimer" class="floating-timer">Time: <span id="floatingTimerText">30:00</span></div>'
+    );
+    
+    loadQuestion();
+    startTimer();
+    updateProgress();
+}
+
+// ADD this function for progress updates:
+function updateProgress() {
+    const answered = Object.keys(userAnswers).length;
+    const total = questions.length;
+    const percentage = (answered / total) * 100;
+    
+    document.getElementById('progressText').textContent = `${currentQuestion + 1}/${total}`;
+    document.getElementById('answeredCount').textContent = answered;
+    document.getElementById('progressBar').style.width = `${percentage}%`;
+}
 
         function startTimer() {
             timerInterval = setInterval(() => {
